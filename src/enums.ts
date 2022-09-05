@@ -1,5 +1,5 @@
 export enum UploadStatus {
-	Reject,
 	Accept,
 	Processing,
+	Drawing,
 }

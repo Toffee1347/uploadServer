@@ -6,11 +6,16 @@ export default class Base {
 	logger: Logger = new Logger();
 	server: Server = new Server(this, {
 		[UploadStatus.Accept]: '/upload.html',
-		[UploadStatus.Reject]: '/reject.html',
 		[UploadStatus.Processing]: '/processing.html',
+		[UploadStatus.Drawing]: '/drawing.html',
 	});
+	currentState: UploadStatus = UploadStatus.Accept;
 
 	public getUploadStatus(): UploadStatus {
-		return UploadStatus.Accept;
+		return this.currentState;
+	}
+
+	public setState(state: UploadStatus): void {
+		this.currentState = state;
 	}
 }
