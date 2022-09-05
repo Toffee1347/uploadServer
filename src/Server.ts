@@ -63,9 +63,17 @@ export default class Server {
 			if (!req.body?.image) return res.sendStatus(400);
 			if (!req.body.image.startsWith('data:image/png;base64,')) return res.sendStatus(400);
 
-			this.base.setState(UploadStatus.Processing);
+			const rawBase64 = req.body.image.replace(/^data:image\/png;base64,/, '');
+			fs.writeFile(this.uploadImgFile, rawBase64, 'base64', (err) => {
+				if (err) {
+					this.base.logger.error('Failed to save image', err);
+					return res.sendStatus(500);
+				}
+				this.base.logger.info('Image sucesfully uploaded');
 
-			res.redirect('/');
+				this.base.setState(UploadStatus.Processing);
+				res.redirect('/');
+			});
 		});
 
 		// Serve the uploaded image when requested
