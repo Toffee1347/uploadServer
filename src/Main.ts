@@ -9,6 +9,7 @@ export default class Main {
 		[State.NotStarted]: '/reject.html',
 		[State.Upload]: '/upload.html',
 		[State.Config]: '/config.html',
+		[State.ReadyToPrint]: '/ready.html',
 		[State.Drawing]: '/drawing.html',
 		[State.Error]: '/error.html',
 	});

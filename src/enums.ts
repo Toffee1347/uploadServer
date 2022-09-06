@@ -2,6 +2,7 @@ export enum State {
 	NotStarted,
 	Upload,
 	Config,
+	ReadyToPrint,
 	Drawing,
 	Error,
 }
@@ -11,5 +12,6 @@ export const stateStrings = [
 	'Upload',
 	'Config',
 	'Drawing',
+	'Ready To Print',
 	'Error',
 ];
