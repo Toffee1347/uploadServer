@@ -19,7 +19,8 @@ body {
 img {
 	display: block;
 	margin: 0 auto;
-	height: 30vh;
+	max-height: 30vh;
+	max-width: 100%;
 }
 
 @media (max-width: 700px) {
@@ -28,7 +29,8 @@ img {
 		width: auto;
 	}
 	img {
-		height: 50vh;
+		max-height: 50vh;
+		max-width: 100%;
 	}
 }
 

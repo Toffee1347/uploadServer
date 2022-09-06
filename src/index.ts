@@ -1,4 +1,4 @@
 import 'dotenv';
-import Base from './base.js';
+import Main from './Main.js';
 
-new Base();
+new Main();

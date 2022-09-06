@@ -1,3 +1,3 @@
-import type {UploadStatus} from './enums.js';
+import type {State} from './enums.js';
 
-export type UploadStatusMapping = {[key in UploadStatus]: string}
+export type UploadStatusMapping = {[key in State]: string}

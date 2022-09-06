@@ -1,13 +1,13 @@
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import fs from 'fs';
 
-import {UploadStatus} from './enums.js';
+import {State} from './enums.js';
+import FileManager from './FileManager.js';
 
 import type {Express} from 'express';
 import type {Server as HttpServer} from 'http';
-import type Base from './base.js';
+import type Main from './Main.js';
 import type {UploadStatusMapping} from './types.d.js';
 
 function getPath(url: string): string {
@@ -16,19 +16,19 @@ function getPath(url: string): string {
 
 export default class Server {
 	app: Express;
-	base: Base;
+	main: Main;
 	server: HttpServer;
 	uploadStatusMapping: UploadStatusMapping;
 	uploadImgPath: string;
 	uploadImgFile: string;
 
-	constructor(base: Base, uploadStatusMapping: UploadStatusMapping) {
+	constructor(main: Main, uploadStatusMapping: UploadStatusMapping) {
 		this.uploadStatusMapping = uploadStatusMapping;
-		this.base = base;
+		this.main = main;
 
-		this.base.logger.info('Initializing server...');
+		this.main.logger.info('Initializing server...');
 		if (!process.env.UPLOAD_IMAGE_PATH) {
-			this.base.logger.warn('UPLOAD_IMAGE_PATH not set, using .cache in current directory instead');
+			this.main.logger.warn('UPLOAD_IMAGE_PATH not set, using .cache in current directory instead');
 		}
 		this.uploadImgPath = getPath(process.env.UPLOAD_IMAGE_PATH || '.cache');
 		this.uploadImgFile = `${this.uploadImgPath}/upload.png`;
@@ -47,38 +47,41 @@ export default class Server {
 
 		// Silently redirect the root to the relevent page for the current status
 		this.app.get('/', (req, res, next) => {
-			const uploadState = this.base.getUploadStatus();
-			if (this.uploadStatusMapping[uploadState]) {
-				req.url = this.uploadStatusMapping[uploadState];
+			const state = this.main.stateManager.getState();
+			if (this.uploadStatusMapping[state]) {
+				req.url = this.uploadStatusMapping[state];
 			}
 			next();
 		});
 
 		// Listen for file uploads
-		this.app.use(express.urlencoded({extended: true}));
-		this.app.post('/api/upload', (req, res) => {
-			const uploadState = this.base.getUploadStatus();
-			if (uploadState !== UploadStatus.Accept) return res.sendStatus(403);
+		this.app.use(express.json({limit: '2gb'}));
+		this.app.post('/api/upload', async (req, res) => {
+			const systemState = this.main.stateManager.getState();
+			if (systemState !== State.Upload) return res.sendStatus(403);
 
 			if (!req.body?.image) return res.sendStatus(400);
 			if (!req.body.image.startsWith('data:image/png;base64,')) return res.sendStatus(400);
-
 			const rawBase64 = req.body.image.replace(/^data:image\/png;base64,/, '');
-			fs.writeFile(this.uploadImgFile, rawBase64, 'base64', (err) => {
-				if (err) {
-					this.base.logger.error('Failed to save image', err);
-					return res.sendStatus(500);
-				}
-				this.base.logger.info('Image sucesfully uploaded');
 
-				this.base.setState(UploadStatus.Processing);
+			try {
+				// Create the directories if needed
+				await FileManager.createDirectoies(this.uploadImgPath);
+				await FileManager.writeToFile(this.uploadImgFile, rawBase64, 'base64');
+
+				this.main.logger.info('Image sucesfully uploaded');
+
+				this.main.stateManager.setState(State.Config);
 				res.redirect('/');
-			});
+			} catch (err) {
+				this.main.logger.error('Failed to save image', err);
+				res.sendStatus(500);
+			}
 		});
 
 		// Serve the uploaded image when requested
 		this.app.get('/api/uploaded', (req, res) => {
-			if (this.base.getUploadStatus() === UploadStatus.Accept) return res.sendStatus(403);
+			if (this.main.stateManager.getState() === State.Upload) return res.sendStatus(403);
 			res.sendFile(this.uploadImgFile);
 		});
 
@@ -88,7 +91,7 @@ export default class Server {
 
 	startServer(): void {
 		this.server.listen(process.env.PORT || 80, () => {
-			this.base.logger.info(`Server started on port ${process.env.PORT || 80}`);
+			this.main.logger.info(`Server started on port ${process.env.PORT || 80}`);
 		});
 	}
 }
