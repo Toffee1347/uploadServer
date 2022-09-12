@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Upload an Image</title>
+	<link rel="stylesheet" href="/static/lib/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+	<div class="content-box" id="body">
+		<div class="form-group">
+			<label for="typeSelect">Print Type</i></label>
+			<select id="typeSelect" class="form-control" style="margin-bottom: 10px;" aria-describedby="typeHelp">
+				<option value="image">Image</option>
+				<option value="graph">Graph</option>
+			</select>
+			<small id="typeHelp" class="form-text text-muted">Click <a href="/help.html" target="_blank">here</a> to see an explaination for each type of print</small>
+		</div>
+
+		<div class="preview-box">
+			<div id="imageOptions" class="options-group">
+				<span id="warningText" class="hidden">Please upload a file below 2GB</span>
+				<img id="previewImage" alt="Preview Image" class="hidden" src="/api/uploaded"/>
+				<img id="loadingImage" src="/static/img/loading.svg" class="hidden"/>
+				<button id="uploadButton" class="btn btn-primary" onclick="$('fileUpload').click()">Upload Image</button>
+				<input id="fileUpload" type="file" accept="image/*" class="hidden"/>
+			</div>
+
+			<div id="graphOptions" class="options-group">
+				<input name="graph" type="text"/>
+			</div>
+
+			<div id="typeNoOptions" class="options-group">
+				There aren't any options avaliable for your current print type
+			</div>
+		</div>
+		
+		<div style="margin-top: 20px">
+			<button id="uploadSettingsButton" class="btn btn-primary" onclick="">Upload settings</button>
+			<a href="/api/reset">
+				<button id="resetSettingsButton" class="btn btn-danger" onclick="" style="float: right;">Reset settings</button>
+			</a>
+		</div>
+	</div>
+	<script src="/api/state.js"></script>
+	<script src="/static/js/app.js"></script>
+	<script src="/static/js/selector.js"></script>
+	<script src="/static/js/upload.js"></script>
+	<script src="/static/js/setup.js"></script>
+</body>
+</html>

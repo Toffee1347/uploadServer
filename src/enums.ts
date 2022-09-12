@@ -1,7 +1,7 @@
 export enum State {
 	NotStarted,
-	Upload,
-	Config,
+	Setup,
+	ImageSetup,
 	ReadyToPrint,
 	Drawing,
 	Error,
@@ -9,8 +9,8 @@ export enum State {
 
 export const stateStrings = [
 	'Not Started',
-	'Upload',
-	'Config',
+	'Setup',
+	'Image Setup',
 	'Drawing',
 	'Ready To Print',
 	'Error',

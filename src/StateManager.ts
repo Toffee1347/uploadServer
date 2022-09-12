@@ -6,7 +6,7 @@ import type Main from './Main.js';
 
 export default class StateManager {
 	main: Main;
-	state: State = State.Upload;
+	state: State = State.Setup;
 
 	constructor(main: Main) {
 		this.main = main;
@@ -20,8 +20,8 @@ export default class StateManager {
 				[arg: string]: State,
 			} = {
 				'-n': State.NotStarted,
-				'-u': State.Upload,
-				'-c': State.Config,
+				'-s': State.Setup,
+				'-i': State.ImageSetup,
 				'-r': State.ReadyToPrint,
 				'-d': State.Drawing,
 				'-e': State.Error,

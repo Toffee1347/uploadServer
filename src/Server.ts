@@ -58,7 +58,7 @@ export default class Server {
 		this.app.use(express.json({limit: '2gb'}));
 		this.app.post('/api/upload', async (req, res) => {
 			const systemState = this.main.stateManager.getState();
-			if (systemState !== State.Upload) return res.sendStatus(403);
+			if (systemState !== State.Setup) return res.sendStatus(403);
 
 			if (!req.body?.image) return res.sendStatus(400);
 			if (!req.body.image.startsWith('data:image/png;base64,')) return res.sendStatus(400);
@@ -71,7 +71,7 @@ export default class Server {
 
 				this.main.logger.info('Image sucesfully uploaded');
 
-				this.main.stateManager.setState(State.Config);
+				this.main.stateManager.setState(State.ImageSetup);
 				res.redirect('/');
 			} catch (err) {
 				this.main.logger.error('Failed to save image', err);
@@ -81,8 +81,27 @@ export default class Server {
 
 		// Serve the uploaded image when requested
 		this.app.get('/api/uploaded', (req, res) => {
-			if (this.main.stateManager.getState() === State.Upload) return res.sendStatus(403);
+			if (this.main.stateManager.getState() === State.Setup) return res.sendStatus(403);
 			res.sendFile(this.uploadImgFile);
+		});
+
+		// Allow the state to be accessed from client side
+		this.app.get('/api/state.js', (req, res) => {
+			res.send(`
+				const currentState = ${this.main.stateManager.getState()};
+				const State = ${JSON.stringify(State)};
+			`);
+		});
+
+		// Give a reset URL where all current settings/state can be reset
+		this.app.get('/api/reset', (req, res) => {
+			const systemState = this.main.stateManager.getState();
+			if (
+				systemState === State.Setup ||
+				systemState === State.ImageSetup ||
+				systemState === State.ReadyToPrint
+			) this.main.stateManager.setState(State.Setup);
+			res.redirect('/');
 		});
 
 		// Make the public file accessible from a GET request

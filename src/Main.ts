@@ -7,8 +7,8 @@ export default class Main {
 	logger: Logger = new Logger();
 	server: Server = new Server(this, {
 		[State.NotStarted]: '/reject.html',
-		[State.Upload]: '/upload.html',
-		[State.Config]: '/config.html',
+		[State.Setup]: '/setup.html',
+		[State.ImageSetup]: '/setup.html',
 		[State.ReadyToPrint]: '/ready.html',
 		[State.Drawing]: '/drawing.html',
 		[State.Error]: '/error.html',
